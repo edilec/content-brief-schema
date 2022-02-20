@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1",
+  "id": "sitemap-cohort-review",
+  "title": "Reviewing sitemap cohorts before a release",
+  "summary": "A release checklist for spotting URLs that silently left the sitemap.",
+  "audience": {
+    "primary": "Release engineers running the pre-deploy checklist",
+    "secondary": ["Content operations", "SEO reviewers"],
+    "expertise": "practitioner"
+  },
+  "intent": "implementation",
+  "evidence": [
+    {
+      "claim": "Removed URLs are the most common unnoticed sitemap regression.",
+      "sourceType": "internal-data",
+      "source": "Release audit log, 2026-01 to 2026-08",
+      "retrievedAt": "2026-09-01"
+    },
+    {
+      "claim": "The sitemap protocol caps a single file at 50,000 URLs.",
+      "sourceType": "public-document",
+      "source": "sitemaps.org protocol",
+      "url": "https://www.sitemaps.org/protocol.html",
+      "retrievedAt": "2026-09-01"
+    }
+  ],
+  "structure": [
+    {
+      "heading": "What a cohort is",
+      "purpose": "Define the unit of comparison before showing any tooling.",
+      "mustCover": ["Unique URL set", "Why entries differ from unique URLs"]
+    },
+    {
+      "heading": "Reading the diff",
+      "purpose": "Show how to tell an intentional removal from a regression.",
+      "mustCover": ["Added URLs", "Removed URLs", "Unknown evidence"]
+    }
+  ],
+  "owner": { "name": "Krishnam Murarka", "contact": "krishnam@example.com", "role": "Maintainer" },
+  "review": {
+    "status": "in-review",
+    "requiredBy": "2026-10-15",
+    "reviewers": ["editor@example.com", "seo@example.com"]
+  },
+  "nonGoals": ["Ranking advice", "Anything requiring a live crawl"],
+  "keywords": ["sitemap", "release checklist"]
+}

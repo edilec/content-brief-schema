@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1",
+  "id": "Missing Evidence Brief",
+  "title": "A brief that will not pass",
+  "audience": { "primary": "Anyone" },
+  "intent": "educational",
+  "evidence": [],
+  "structure": [
+    { "heading": "Only heading" }
+  ],
+  "owner": { "name": "", "contact": "not-an-email" },
+  "review": {
+    "status": "approved",
+    "requiredBy": "2026-02-30",
+    "reviewers": []
+  },
+  "unexpectedField": true
+}
