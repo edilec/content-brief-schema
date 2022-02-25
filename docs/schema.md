@@ -22,6 +22,16 @@ changelog.
 | `value-malformed` | error | The value does not match the field's format. |
 | `brief-unreadable` | error | The document could not be read or parsed. Makes the report `incomplete`. |
 
+`brief-unreadable` names the offset a parse failed at -- position, line and
+column -- and never the text it failed on. V8 reports a parse failure two ways
+and one of them quotes the input back, `Unexpected token 'A',
+"AKIAIOSFODNN7EXAMPLE" is not valid JSON`, which reproduces the first ten
+characters of the file, or the whole file when it is shorter than that. A brief
+short enough to be nothing but a credential would otherwise be published in
+full by its own diagnostic, on the one path an unparseable file is guaranteed
+to take. The quoted half is dropped before the finding is built; the offset,
+which says nothing about content, is kept whole.
+
 ## Ordering of checks
 
 Within one string field the checks run in a fixed order and stop at the first

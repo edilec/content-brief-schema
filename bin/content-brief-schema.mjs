@@ -3,7 +3,7 @@
 import { readFile } from 'node:fs/promises'
 import { relative, resolve } from 'node:path'
 
-import { MAX_BRIEF_BYTES, createReport, formatReport } from '../src/index.mjs'
+import { MAX_BRIEF_BYTES, createReport, formatReport, parseFailureDetail } from '../src/index.mjs'
 
 const HELP = `content-brief-schema
 
@@ -37,17 +37,29 @@ function parseArguments(argv) {
   return { files, json, help: false }
 }
 
+/**
+ * The two failures are caught separately on purpose. A filesystem error
+ * describes the caller's own argument, but a parse error describes the file's
+ * contents -- V8 quotes the input back in one of its two message shapes -- and
+ * that must not reach a report. `parseFailureDetail` keeps the offset and
+ * drops the quoted half.
+ */
 async function readBrief(file) {
   const path = resolve(file)
   const display = relative(process.cwd(), path) || file
+  let raw
   try {
-    const raw = await readFile(path, 'utf8')
-    if (Buffer.byteLength(raw) > MAX_BRIEF_BYTES) {
-      return { file: display, error: `Brief exceeds the ${MAX_BRIEF_BYTES} byte limit.` }
-    }
-    return { file: display, brief: JSON.parse(raw) }
+    raw = await readFile(path, 'utf8')
   } catch (error) {
     return { file: display, error: `Could not read brief: ${error.message}` }
+  }
+  if (Buffer.byteLength(raw) > MAX_BRIEF_BYTES) {
+    return { file: display, error: `Brief exceeds the ${MAX_BRIEF_BYTES} byte limit.` }
+  }
+  try {
+    return { file: display, brief: JSON.parse(raw) }
+  } catch (error) {
+    return { file: display, error: `Brief is not valid JSON: ${parseFailureDetail(error)}.` }
   }
 }
 

@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "lint": "node --check src/index.mjs && node --check src/schema.mjs && node --check bin/content-brief-schema.mjs && node --check test/validate.test.mjs && node --check test/cli.test.mjs",
+    "lint": "node --check src/index.mjs && node --check src/schema.mjs && node --check bin/content-brief-schema.mjs && node --check test/validate.test.mjs && node --check test/cli.test.mjs && node --check test/parse-failure.test.mjs",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=src/**",
     "example": "node bin/content-brief-schema.mjs examples/minimal-brief.json examples/extended-brief.json",
