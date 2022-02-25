@@ -15,6 +15,19 @@ export const REPORT_SCHEMA_VERSION = '1'
 /** Maximum bytes accepted for one brief document. */
 export const MAX_BRIEF_BYTES = 1024 * 1024
 
+/**
+ * Order by UTF-16 code unit, deliberately not by locale.
+ *
+ * `localeCompare` depends on ICU data that varies between Node builds and
+ * platforms, so it would let the same brief produce differently ordered
+ * findings on two correct machines. Report output has to be byte-identical for
+ * the same input.
+ */
+function byCodeUnit(left, right) {
+  if (left === right) return 0
+  return left < right ? -1 : 1
+}
+
 function pointerSegment(key) {
   return String(key).replace(/~/g, '~0').replace(/\//g, '~1')
 }
@@ -156,9 +169,9 @@ function validateNode(value, schema, pointer, findings) {
 
 function sortFindings(findings) {
   return findings.sort((left, right) =>
-    left.location.pointer.localeCompare(right.location.pointer)
-    || left.ruleId.localeCompare(right.ruleId)
-    || left.message.localeCompare(right.message))
+    byCodeUnit(left.location.pointer, right.location.pointer)
+    || byCodeUnit(left.ruleId, right.ruleId)
+    || byCodeUnit(left.message, right.message))
 }
 
 /**
@@ -200,9 +213,9 @@ export function createReport(entries) {
   }
 
   findings.sort((left, right) =>
-    String(left.location.file ?? '').localeCompare(String(right.location.file ?? ''))
-    || String(left.location.pointer ?? '').localeCompare(String(right.location.pointer ?? ''))
-    || left.ruleId.localeCompare(right.ruleId))
+    byCodeUnit(String(left.location.file ?? ''), String(right.location.file ?? ''))
+    || byCodeUnit(String(left.location.pointer ?? ''), String(right.location.pointer ?? ''))
+    || byCodeUnit(left.ruleId, right.ruleId))
 
   const errors = findings.filter((item) => item.severity === 'error').length
   const warnings = findings.filter((item) => item.severity === 'warning').length

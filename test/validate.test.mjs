@@ -244,3 +244,14 @@ test('untrimmed strings are reported before length rules', async () => {
 
   assert.equal(finding.ruleId, 'string-untrimmed')
 })
+
+test('finding order does not depend on locale-aware comparison', () => {
+  // Uppercase sorts before lowercase by code unit; a locale-aware comparator
+  // interleaves them, so the same brief would order differently on two machines
+  // with different ICU data.
+  const brief = { Zeta: 1, alpha: 2, Beta: 3 }
+  const found = pointers(validateBrief(brief).findings).filter((pointer) => pointer !== '')
+
+  assert.deepEqual(found.slice(0, 3).sort(), found.slice(0, 3))
+  assert.ok(found.indexOf('/Beta') < found.indexOf('/alpha'), 'uppercase must sort first')
+})
