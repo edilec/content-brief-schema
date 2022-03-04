@@ -134,3 +134,71 @@ test('parseFailureDetail refuses a wording it was not taught rather than guessin
   )
   assert.equal(parseFailureDetail(undefined), 'the document could not be parsed as JSON')
 })
+
+/**
+ * The order the two V8 spellings are recognised in is what keeps the rest true.
+ *
+ * `parseFailureDetail` looks for the quoting shape BEFORE it looks for the
+ * offset, and the difference is not cosmetic: a brief whose own text reads `at
+ * position 1` is quoted back by V8 as `Unexpected token 'a', "at position 1"
+ * is not valid JSON`, so an offset-first search finds that phrase inside the
+ * quoted span and the slice hands the brief straight back out. Nineteen tools
+ * in this catalog shipped that ordering. These tests fail if this one adopts
+ * it.
+ */
+
+const UNPARSEABLE = 'the document could not be parsed as JSON'
+
+/** The detail for a document V8 actually refused -- never a hand-written message. */
+function detailOf(document) {
+  try {
+    JSON.parse(document)
+  } catch (error) {
+    return parseFailureDetail(error)
+  }
+  throw new Error(`${JSON.stringify(document)} parsed, so it pins nothing`)
+}
+
+/** No run of four characters or more from the document survives into the detail. */
+function assertNoRunOf(document, detail, label) {
+  for (let length = 4; length <= document.length; length += 1) {
+    const prefix = document.slice(0, length)
+    assert.equal(detail.includes(prefix), false, `${label}: the detail carries ${JSON.stringify(prefix)}`)
+  }
+}
+
+test('a brief whose own text reads "at position 1" is not sliced back out', () => {
+  const document = 'at position 1'
+  const detail = detailOf(document)
+
+  assert.equal(detail.includes('"'), false, 'a double quote in the detail means a quoted span survived')
+  assert.equal(detail.includes(document), false, 'the brief came back inside its own diagnostic')
+  assert.equal(detail, "unexpected token 'a' at the start of the document")
+})
+
+test('a long brief is not quoted back by any run of its sensitive opening', () => {
+  const document = `${CANARY} and a great deal of trailing content nobody should read back`
+  const detail = detailOf(document)
+
+  assertNoRunOf(document, detail, 'long brief')
+  assert.equal(detail, "unexpected token 'A' at the start of the document")
+})
+
+test('a quoted span holding a newline is still recognised as a quoted span', () => {
+  // Without the `s` flag the quoting shape does not match a span with a line
+  // break in it, the offset branch is reached, and the generic sentence is all
+  // that is left -- or worse, the span is sliced out.
+  const detail = detailOf('}x\n')
+
+  assert.equal(detail, "unexpected token '}' at the start of the document")
+  assert.notEqual(detail, UNPARSEABLE, 'the newline case fell through to the generic sentence')
+})
+
+test('the safe positional spelling keeps its position, line and column', () => {
+  // A helper that answered the generic sentence for everything would pass every
+  // leak test above while destroying every diagnostic. This is the other half.
+  const detail = detailOf('{"schemaVersion": "1" "title": "Launch"}')
+
+  assert.match(detail, /at position \d+ \(line \d+ column \d+\)$/)
+  assert.equal(detail, "Expected ',' or '}' after property value in JSON at position 22 (line 1 column 23)")
+})
