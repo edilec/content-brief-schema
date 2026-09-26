@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1",
+  "id": "webhook-retry-policy",
+  "title": "Choosing a webhook retry policy",
+  "audience": { "primary": "Backend engineers integrating a payments provider" },
+  "intent": "implementation",
+  "evidence": [
+    {
+      "claim": "Exponential backoff with jitter reduces retry stampedes after an outage.",
+      "sourceType": "measurement",
+      "source": "Internal load test 2026-07-14, synthetic traffic replay"
+    }
+  ],
+  "structure": [
+    { "heading": "When retries help", "purpose": "Establish which failures are worth retrying at all." }
+  ],
+  "owner": { "name": "Krishnam Murarka", "contact": "krishnam@example.com" },
+  "review": {
+    "status": "draft",
+    "requiredBy": "2026-10-01",
+    "reviewers": ["editor@example.com"]
+  }
+}

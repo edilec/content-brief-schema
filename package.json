@@ -1,0 +1,50 @@
+{
+  "name": "content-brief-schema",
+  "version": "0.1.0",
+  "description": "Validate structured content briefs before an article or landing page enters production.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "node --check src/index.mjs && node --check src/schema.mjs && node --check bin/content-brief-schema.mjs && node --check test/validate.test.mjs && node --check test/cli.test.mjs && node --check test/parse-failure.test.mjs",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=src/**",
+    "example": "node bin/content-brief-schema.mjs examples/minimal-brief.json examples/extended-brief.json",
+    "pack:check": "npm pack --dry-run",
+    "check": "npm run lint && npm test && npm run example && npm run pack:check"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edilec/content-brief-schema.git"
+  },
+  "bin": {
+    "content-brief-schema": "./bin/content-brief-schema.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "docs",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "content",
+    "brief",
+    "schema",
+    "validation",
+    "cli",
+    "editorial"
+  ],
+  "author": "Edilec Private Limited",
+  "bugs": {
+    "url": "https://github.com/edilec/content-brief-schema/issues"
+  },
+  "homepage": "https://github.com/edilec/content-brief-schema#readme"
+}
